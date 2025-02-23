@@ -1,4 +1,5 @@
 # Differential Drive Controller (ROS2)
+This repo contains a custom differential drive controller package which can be used to control and differential drive robot. Here, the simulation is build upon the open source `bumperbot` robot.
 
 **Differential Drive Controller**, a ROS2 package designed for controlling a differential drive robot. This package consists of two key nodes: 
 1. **repub_node.cpp** – Converts velocity commands into wheel RPM values.
@@ -25,7 +26,7 @@ differential_drive_controller/
 │   │── repub_node.cpp          # Velocity to RPM conversion node
 │── CMakeLists.txt              # Build system configuration
 │── package.xml                 # ROS2 package metadata
-│── README.md                 # README file
+
 
 ```
 
@@ -87,22 +88,39 @@ Ensure you have ROS2 installed. Then, clone this package into your ROS2 workspac
 cd ~/ros2_ws/src
 git clone https://github.com/Maharishi1313/differential_drive_controller
 cd ~/ros2_ws
-colcon build --packages-select differential_drive_controller
+colcon build 
 source install/setup.bash
 ```
 
 ### Running the Nodes
 1. **Start the repub_node:**
    ```bash
-   ros2 run differential_drive_controller repub_node --ros-args -p wheel_base:=0.287 -p wheel_radius:=0.033 - 
-   p max_rpm:=150.0
+   ros2 run differential_drive_controller repub_node --ros-args -p wheel_base:=0.17 -p wheel_radius:=0.033 - 
+   p max_rpm:=100.0
    ```
-2. **Run the waypoint follower:**
+   
+3. **Run the waypoint follower:**
    ```bash
    ros2 run differential_drive_controller waypoint_navigation.py --ros-args 
    -p waypoint_1_x:=2.0 -p waypoint_1_y:=1.0 -p waypoint_2_x:=4.0 -p waypoint_2_y:=3.0
 
    ```
+
+4. **See the gazebo simulation:**
+   ```bash
+   ros2 launch differential_drive_controller repub.launch.py
+   ```
+   Then publish command on `/cmd_vel` topic in another terminal
+   ```
+   ros2 topic pub /cmd_vel geometry_msgs/Twist '{linear: {x: 0.2}, angular: {z: 0.3}}'
+   ```
+   Now, to see both `repub_node.cpp` and `waypoint_follower.py` in action, keep the launch file    
+   `repub.launch.py` running in one terminal and in another terminal run the `waypoint_follower.py` node.
+   ```
+   ros2 run differential_drive_controller waypoint_follower.py --ros-args 
+   -p waypoint_1_x:=2.0 -p waypoint_1_y:=1.0 -p waypoint_2_x:=4.0 -p waypoint_2_y:=3.0
+   ```
+
 
 ---
 
@@ -110,6 +128,12 @@ source install/setup.bash
 - The **PD controller** is tuned for stability. The integral term is disabled (`ki = 0`) to prevent instability.
 - The package is fully customizable via ROS2 parameters.
 - Ensure correct wheel parameters are set for accurate motion control.
+---
+
+
+## References
+[Bumperbot Github](https://github.com/AntoBrandi/Self-Driving-and-ROS-2-Learn-by-Doing-Odometry-Control/tree/main/Section9_Odometry/bumperbot_ws/src)
+
 
 ---
 
